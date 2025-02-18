@@ -9,12 +9,18 @@ jobs:
   custom-build-job:
     runs-on: windows-2022
 
-    services:
-      bnr_as412:
-        image: musserautomation/bnr-as412
-        options: --name bnr_as412_container
-
     steps:
+      - name: Restore Docker Image from Cache
+        id: cache-docker
+        uses: actions/cache@v3
+        with:
+          path: C:\ProgramData\docker\windowsfilter
+          key: docker-image-musserautomation-bnr-as412
+
+      - name: Pull the Docker image (if not cached)
+        if: steps.cache-docker.outputs.cache-hit != 'true'
+        run: docker pull musserautomation/bnr-as412
+
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
@@ -22,4 +28,7 @@ jobs:
 
       - name: Run the build process inside the container
         run: |
-          docker exec bnr_as412_container powershell -Command "& 'C:\BrAutomation\AS412\bin-en\BR.AS.Build.exe' 'C:\workspace\CustomRepoFolder\BuildServer.apj' -c 'Simulator' -buildMode 'Build'"
+          docker run --rm `
+            -v "${{ github.workspace }}:C:\workspace" `
+            musserautomation/bnr-as412 `
+            powershell -Command "& 'C:\BrAutomation\AS412\bin-en\BR.AS.Build.exe' 'C:\workspace\CustomRepoFolder\BuildServer.apj' -c 'Simulator' -buildMode 'Build'"
