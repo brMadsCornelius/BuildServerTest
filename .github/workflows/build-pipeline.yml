@@ -3,7 +3,7 @@ name: Build PLC project with Github-managed runner (using a Windows Container)
 on:
   push:
     branches:
-      - feature/ci-test
+      - main
 
 jobs:
   custom-build-job:
