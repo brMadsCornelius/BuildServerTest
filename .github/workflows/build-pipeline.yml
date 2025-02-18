@@ -10,16 +10,23 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - name: Restore Docker Image from Cache
+      - name: Check Docker Cache
         id: cache-docker
         uses: actions/cache@v3
         with:
-          path: C:\ProgramData\docker\windowsfilter
+          path: C:\docker-cache\bnr-as412.tar
           key: docker-image-musserautomation-bnr-as412
 
-      - name: Pull the Docker image (if not cached)
+      - name: Load Docker Image from Cache
+        if: steps.cache-docker.outputs.cache-hit == 'true'
+        run: docker load -i C:\docker-cache\bnr-as412.tar
+
+      - name: Pull Docker Image (if not cached)
         if: steps.cache-docker.outputs.cache-hit != 'true'
-        run: docker pull musserautomation/bnr-as412
+        run: |
+          mkdir C:\docker-cache
+          docker pull musserautomation/bnr-as412
+          docker save -o C:\docker-cache\bnr-as412.tar musserautomation/bnr-as412
 
       - name: Checkout Repository
         uses: actions/checkout@v3
