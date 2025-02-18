@@ -1,3 +1,4 @@
 VAR
 	test : UDINT;
+	test2 : UDINT;
 END_VAR
